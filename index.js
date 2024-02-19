@@ -83,55 +83,55 @@ app.post('/location', (req, res) => {
     });
 });
 
-app.get('/user_details', (req, res) => {
-    var sql = "SELECT * FROM user_details";
-    con.query(sql, (error, result) => {
-        if (error) {
-            console.log(error);
-            return res.status(500).json({ success: false, message: 'Failed to fetch user details' });
-        }
-        res.render(__dirname + "/user_details", { user_details: result });
-    });
-});
+// app.get('/user_details', (req, res) => {
+//     var sql = "SELECT * FROM user_details";
+//     con.query(sql, (error, result) => {
+//         if (error) {
+//             console.log(error);
+//             return res.status(500).json({ success: false, message: 'Failed to fetch user details' });
+//         }
+//         res.render(__dirname + "/user_details", { user_details: result });
+//     });
+// });
 
-app.get('/delete-user_details', (req, res) => {
-    var sql = "DELETE FROM user_details WHERE uid=?";
-    var id = req.query.uid;
-    con.query(sql, [id], (error, result) => {
-        if (error) {
-            console.log(error);
-            return res.status(500).json({ success: false, message: 'Failed to delete user details' });
-        }
-        res.redirect('/user_details');
-    });
-});
+// app.get('/delete-user_details', (req, res) => {
+//     var sql = "DELETE FROM user_details WHERE uid=?";
+//     var id = req.query.uid;
+//     con.query(sql, [id], (error, result) => {
+//         if (error) {
+//             console.log(error);
+//             return res.status(500).json({ success: false, message: 'Failed to delete user details' });
+//         }
+//         res.redirect('/user_details');
+//     });
+// });
 
-app.get('/update-user_details', (req, res) => {
-    var sql = "SELECT * FROM user_details WHERE uid=?";
-    var id = req.query.uid;
-    con.query(sql, [id], (error, result) => {
-        if (error) {
-            console.log(error);
-            return res.status(500).json({ success: false, message: 'Failed to fetch user details for update' });
-        }
-        res.render(__dirname + "/update_user", { user_details: result });
-    });
-});
+// app.get('/update-user_details', (req, res) => {
+//     var sql = "SELECT * FROM user_details WHERE uid=?";
+//     var id = req.query.uid;
+//     con.query(sql, [id], (error, result) => {
+//         if (error) {
+//             console.log(error);
+//             return res.status(500).json({ success: false, message: 'Failed to fetch user details for update' });
+//         }
+//         res.render(__dirname + "/update_user", { user_details: result });
+//     });
+// });
 
-app.post('/update-user_details', (req, res) => {
-    var name = req.body.name;
-    var email = req.body.email;
-    var id = req.body.id;
+// app.post('/update-user_details', (req, res) => {
+//     var name = req.body.name;
+//     var email = req.body.email;
+//     var id = req.body.id;
 
-    var sql = "UPDATE user_details SET uname=?, uemail=? WHERE uid=?";
-    con.query(sql, [name, email, id], (error, result) => {
-        if (error) {
-            console.log(error);
-            return res.status(500).json({ success: false, message: 'Failed to update user details' });
-        }
-        res.redirect('/user_details');
-    });
-});
+//     var sql = "UPDATE user_details SET uname=?, uemail=? WHERE uid=?";
+//     con.query(sql, [name, email, id], (error, result) => {
+//         if (error) {
+//             console.log(error);
+//             return res.status(500).json({ success: false, message: 'Failed to update user details' });
+//         }
+//         res.redirect('/user_details');
+//     });
+// });
 
 app.listen(4000, () => {
     console.log('Server is running on port 4000');
