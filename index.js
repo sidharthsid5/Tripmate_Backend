@@ -32,6 +32,39 @@ app.post('/signup', (req, res) => {
         res.send('Inserted');
     });
 });
+app.post('/interest', async (req, res) => {
+    
+     
+      var location = req.body.location;
+      var days = req.body.days;
+      var interest = req.body.interests;
+      console.log(req.body);
+    //   if (!current_loc || !interest) {
+    //     current_loc = "loc"; 
+    //     interest = "No ";// Set a default value if current_loc is not provided
+    //   }
+    //   var sql = "INSERT INTO interest(current_loc, days, interest) VALUES ( ?, ?, ?)";
+    //   con.query(sql, [location, days, interest], (error, result) => {
+    //       if (error) {
+    //           console.log(error)
+    //           return res.status(500).json({ success: false, message: ' failed' });
+   
+    var sql = "INSERT INTO interest (current_loc, days, interest) VALUES ";
+    var values = interest.map(interests => `('${location}', '${days}', '${interests}')`).join(', ');
+
+    // Append the multiple value sets to the INSERT query
+    sql += values;
+
+    // Execute the INSERT query
+    con.query(sql, (error, result) => {
+      if (error) {
+        console.log(error);
+        return res.status(500).json({ success: false, message: 'Insertion failed' });
+      }
+          res.send('Inserted');
+      });
+    }
+),
 
 app.post('/signin', (req, res) => {
 
