@@ -59,6 +59,8 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 //     });
 //   }
 // Function to fetch data from MySQL and perform calculations
+
+
 function fetchAndCalculateDistance(currentLoc, days) {
     // Fetch data from the districts table based on current_loc
     const districtQuery = `SELECT DistrictName, Latitude, Longitude FROM Districts WHERE DistrictName = ?`;
