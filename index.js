@@ -32,6 +32,7 @@ app.post('/signup', (req, res) => {
         res.send('Inserted');
     });
 });
+
 app.post('/interest', async (req, res) => {
     
      
@@ -90,13 +91,16 @@ app.post('/interest', async (req, res) => {
 // });
 
 // Modify the code in your /place endpoint
+
 app.post('/place', (req, res) => {
     try {
       const districtName = req.body.location;
       const days = req.body.days;
+      var interest = req.body.interests;
+       tourId= 1;
   
       // Call function to fetch and calculate distances
-      fetchAndCalculateDistance(districtName, days, (err, sortedPlaces) => {
+      fetchAndCalculateDistance(tourId,interest,districtName, days, (err, sortedPlaces) => {
         if (err) {
           console.error('Error fetching places:', error);
           res.status(500).json({ success: false, message: 'Internal server error' });
@@ -163,6 +167,18 @@ app.post('/location', (req, res) => {
 
         res.send('Inserted');
     });
+});
+
+app.get('/tourSchedules', (req, res) => {
+  const sql = 'SELECT * FROM TourSchedule where tourId=1';
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching tour schedules:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+    }
+  });
 });
 
 // app.get('/user_details', (req, res) => {

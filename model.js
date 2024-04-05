@@ -61,7 +61,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 // Function to fetch data from MySQL and perform calculations
 
 
-function fetchAndCalculateDistance(currentLoc, days) {
+function fetchAndCalculateDistance(tourId, interest,currentLoc, days) {
     // Fetch data from the districts table based on current_loc
     const districtQuery = `SELECT DistrictName, Latitude, Longitude FROM Districts WHERE DistrictName = ?`;
     con.query(districtQuery, [currentLoc], (districtErr, districtRows) => {
@@ -80,7 +80,17 @@ function fetchAndCalculateDistance(currentLoc, days) {
       const districtLongitude = district.Longitude;
   
       // Fetch data from the places table
-      const placesQuery = `SELECT location, latitude, longitude FROM places`;
+      // const placesQuery = `SELECT location, latitude, longitude FROM places where category ='${interest}'`;
+       placesQuery = `SELECT location, latitude, longitude FROM places WHERE`;
+if (interest.length === 1) {
+    // If only one interest is selected, use a simple WHERE clause
+    placesQuery += ` category = '${interest[0]}'`;
+} else {
+    // If multiple interests are selected, use the IN operator
+    const interestList = interest.map(i => `'${i}'`).join(',');
+    placesQuery += ` category IN (${interestList})`;
+}
+
       con.query(placesQuery, (placesErr, placesRows) => {
         if (placesErr) {
           console.error('Error fetching data from places table:', placesErr);
@@ -105,14 +115,20 @@ function fetchAndCalculateDistance(currentLoc, days) {
   
         // Display selected places
         console.log(`Selected places for ${days} days based on distance from ${currentLoc}:`);
-        selectedPlaces.forEach(place => {
+        s=selectedPlaces.forEach(place => {
           console.log(place.location, '-', place.distance.toFixed(2), 'km');
         });
-      });
+        const insertQuery = `INSERT INTO TourSchedule (tourId,Tourlocation, distance) VALUES (?,?,?)`;
+            selectedPlaces.forEach(place => {
+                con.query(insertQuery, [tourId,place.location, place.distance], (insertErr, result) => {
+                    if (insertErr) {
+                        console.error('Error inserting place into TourSchedule:', insertErr);
+                    }
+                });
+            });
+        });
     });
-  }
-  
-  
+}
   module.exports = {
     calculateDistance,
     deg2rad,
