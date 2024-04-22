@@ -81,7 +81,7 @@ function fetchAndCalculateDistance(tourId, interest,currentLoc, days) {
   
       // Fetch data from the places table
       // const placesQuery = `SELECT location, latitude, longitude FROM places where category ='${interest}'`;
-       placesQuery = `SELECT location, latitude, longitude FROM places WHERE`;
+       placesQuery = `SELECT location, latitude, longitude,loc_id FROM places WHERE`;
 if (interest.length === 1) {
     // If only one interest is selected, use a simple WHERE clause
     placesQuery += ` category = '${interest[0]}'`;
@@ -118,9 +118,9 @@ if (interest.length === 1) {
         s=selectedPlaces.forEach(place => {
           console.log(place.location, '-', place.distance.toFixed(2), 'km');
         });
-        const insertQuery = `INSERT INTO TourSchedule (tourId,Tourlocation, distance) VALUES (?,?,?)`;
+        const insertQuery = `INSERT INTO TourSchedule (tourId, distance,loc_id) VALUES (?,?,?)`;
             selectedPlaces.forEach(place => {
-                con.query(insertQuery, [tourId,place.location, place.distance], (insertErr, result) => {
+                con.query(insertQuery, [tourId, place.distance,place.loc_id], (insertErr, result) => {
                     if (insertErr) {
                         console.error('Error inserting place into TourSchedule:', insertErr);
                     }

@@ -170,16 +170,29 @@ app.post('/location', (req, res) => {
 });
 
 app.get('/tourSchedules', (req, res) => {
-  const sql = 'SELECT * FROM TourSchedule where tourId=1';
+  const sql = 'SELECT distance FROM TourSchedule where tourId=1';
   con.query(sql, (err, result) => {
     if (err) {
       console.error('Error fetching tour schedules:', err);
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
+      // console.log(result)
     }
   });
 });
+
+app.get('/deleteSchedules', (req, res) => {
+      var sql = "DELETE FROM TourSchedule WHERE tourId=1";
+      // var id = req.query.uid;
+      con.query(sql, (error, result) => {
+          if (error) {
+              console.log(error);
+              return res.status(500).json({ success: false, message: 'Failed to delete user details' });
+          }
+          res.redirect('/deleteSchedules');
+      });
+  });
 
 // app.get('/user_details', (req, res) => {
 //     var sql = "SELECT * FROM user_details";
