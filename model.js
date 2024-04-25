@@ -112,7 +112,7 @@ if (interest.length === 1) {
           const placesForDay = sortedPlaces.slice(startIndex, endIndex);
           selectedPlaces = [...selectedPlaces, ...placesForDay];
         }
-  
+        
         // Display selected places
         console.log(`Selected places for ${days} days based on distance from ${currentLoc}:`);
         s=selectedPlaces.forEach(place => {

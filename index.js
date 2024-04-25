@@ -33,41 +33,41 @@ app.post('/signup', (req, res) => {
     });
 });
 
-app.post('/interest', async (req, res) => {
+// app.post('/interest', async (req, res) => {
     
      
-      var location = req.body.location;
-      var days = req.body.days;
-      var interest = req.body.interests;
-      console.log(req.body);
-    //   if (!current_loc || !interest) {
-    //     current_loc = "loc"; 
-    //     interest = "No ";// Set a default value if current_loc is not provided
-    //   }
-    //   var sql = "INSERT INTO interest(current_loc, days, interest) VALUES ( ?, ?, ?)";
-    //   con.query(sql, [location, days, interest], (error, result) => {
+//       var location = req.body.location;
+//       var days = req.body.days;
+//       var interest = req.body.interests;
+//       console.log(req.body);
+//     //   if (!current_loc || !interest) {
+//     //     current_loc = "loc"; 
+//     //     interest = "No ";// Set a default value if current_loc is not provided
+//     //   }
+//     //   var sql = "INSERT INTO interest(current_loc, days, interest) VALUES ( ?, ?, ?)";
+//     //   con.query(sql, [location, days, interest], (error, result) => {
         
-    //       if (error) {
-    //           console.log(error)
-    //           return res.status(500).json({ success: false, message: ' failed' });
+//     //       if (error) {
+//     //           console.log(error)
+//     //           return res.status(500).json({ success: false, message: ' failed' });
    
-    var sql = "INSERT INTO interest (current_loc, days, interest) VALUES ";
-    var values = interest.map(interests => `('${location}', '${days}', '${interests}')`).join(', ');
+//     var sql = "INSERT INTO interest (current_loc, days, interest) VALUES ";
+//     var values = interest.map(interests => `('${location}', '${days}', '${interests}')`).join(', ');
 
-    // Append the multiple value sets to the INSERT query
-    sql += values;
+//     // Append the multiple value sets to the INSERT query
+//     sql += values;
 
-    // Execute the INSERT query
-    con.query(sql, (error, result) => {
-      if (error) {
-        console.log(error);
-        return res.status(500).json({ success: false, message: 'Insertion failed' });
-      }
-          res.send('Inserted');
-      });
-    }
+//     // Execute the INSERT query
+//     con.query(sql, (error, result) => {
+//       if (error) {
+//         console.log(error);
+//         return res.status(500).json({ success: false, message: 'Insertion failed' });
+//       }
+//           res.send('Inserted');
+//       });
+//     }
     
-),
+// ),
 
 
 
@@ -92,7 +92,7 @@ app.post('/interest', async (req, res) => {
 
 // Modify the code in your /place endpoint
 
-app.post('/place', (req, res) => {
+app.post('/userinterest', (req, res) => {
     try {
       const districtName = req.body.location;
       const days = req.body.days;
@@ -170,14 +170,17 @@ app.post('/location', (req, res) => {
 });
 
 app.get('/tourSchedules', (req, res) => {
-  const sql = 'SELECT distance FROM TourSchedule where tourId=1';
+  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = 1';
+  
+  // 'SELECT distance FROM TourSchedule where tourId=1';
+
   con.query(sql, (err, result) => {
     if (err) {
       console.error('Error fetching tour schedules:', err);
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
-      // console.log(result)
+      //console.log(result)
     }
   });
 });
@@ -193,6 +196,9 @@ app.get('/deleteSchedules', (req, res) => {
           res.redirect('/deleteSchedules');
       });
   });
+
+  
+   
 
 // app.get('/user_details', (req, res) => {
 //     var sql = "SELECT * FROM user_details";
