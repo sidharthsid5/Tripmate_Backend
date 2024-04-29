@@ -61,7 +61,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 // Function to fetch data from MySQL and perform calculations
 
 
-function fetchAndCalculateDistance(tourId, interest,currentLoc, days) {
+function fetchAndCalculateDistance(tourId, interest,currentLoc, days,userId) {
     // Fetch data from the districts table based on current_loc
     const districtQuery = `SELECT DistrictName, Latitude, Longitude FROM Districts WHERE DistrictName = ?`;
     con.query(districtQuery, [currentLoc], (districtErr, districtRows) => {
@@ -78,7 +78,7 @@ function fetchAndCalculateDistance(tourId, interest,currentLoc, days) {
       const district = districtRows[0];
       const districtLatitude = district.Latitude;
       const districtLongitude = district.Longitude;
-  
+      
       // Fetch data from the places table
       // const placesQuery = `SELECT location, latitude, longitude FROM places where category ='${interest}'`;
        placesQuery = `SELECT location, latitude, longitude,loc_id FROM places WHERE`;
@@ -118,9 +118,9 @@ if (interest.length === 1) {
         s=selectedPlaces.forEach(place => {
           console.log(place.location, '-', place.distance.toFixed(2), 'km');
         });
-        const insertQuery = `INSERT INTO TourSchedule (tourId, distance,loc_id) VALUES (?,?,?)`;
+        const insertQuery = `INSERT INTO TourSchedule (tourId,uid, distance,loc_id) VALUES (?,?,?,?)`;
             selectedPlaces.forEach(place => {
-                con.query(insertQuery, [tourId, place.distance,place.loc_id], (insertErr, result) => {
+                con.query(insertQuery, [tourId, userId,place.distance,place.loc_id], (insertErr, result) => {
                     if (insertErr) {
                         console.error('Error inserting place into TourSchedule:', insertErr);
                     }

@@ -2,17 +2,55 @@ var con = require("./connection");
 var express = require('express');
 var app = express();
 const cors = require('cors');
+const session = require('express-session');
 var bodyParser = require('body-parser');
 const { calculateDistance, deg2rad, fetchAndCalculateDistance } = require('./model.js');
 
 // Enable CORS for all routes
+app.use(session({
+  secret: 'youet_key',
+  resave: false,
+  saveUninitialized: true
+}));
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
+app.use(express.json()); 
 
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/register.html');
+
+app.post('/signin', (req, res) => {
+
+  var email = req.body.email;
+  var password = req.body.password;
+  var userId = req.body.userId;
+  console.log(req.body);
+
+  // res.status(500).json({ success: false, message: 'Login failed' })
+
+  if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+  }
+
+  // Check credentials against the database
+  var sql = 'SELECT uid FROM user_details WHERE uemail = ? AND upasword = ?';
+  con.query(sql, [email, password], (err, results) => {
+      if (err) {
+          console.error('MySQL query error:', err);
+          return res.status(500).json({ error: 'Internal server error' });
+      }
+
+      if (results.length === 1) {
+           userId = results[0].uid;
+           req.session.userId = userId;
+          res.json({ userId });
+          console.log(userId)
+          //res.json({ message: 'Login successful' });
+      } else {
+
+          res.status(401).json({ error: 'Invalid email or password' });
+      }
+  });
 });
 
 app.post('/signup', (req, res) => {
@@ -98,9 +136,11 @@ app.post('/userinterest', (req, res) => {
       const days = req.body.days;
       var interest = req.body.interests;
        tourId= 1;
+       const userId = req.session.userId;
+       console.log(userId)
   
       // Call function to fetch and calculate distances
-      fetchAndCalculateDistance(tourId,interest,districtName, days, (err, sortedPlaces) => {
+      fetchAndCalculateDistance(tourId,interest,districtName, days,userId, (err, sortedPlaces) => {
         if (err) {
           console.error('Error fetching places:', error);
           res.status(500).json({ success: false, message: 'Internal server error' });
@@ -116,47 +156,13 @@ app.post('/userinterest', (req, res) => {
   
 
 
-
-
-
-app.post('/signin', (req, res) => {
-
-    var email = req.body.email;
-    var password = req.body.password;
-    var userId = req.body.userId;
-    console.log(req.body);
-
-    // res.status(500).json({ success: false, message: 'Login failed' })
-
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-    }
-
-    // Check credentials against the database
-    var sql = 'SELECT uid FROM user_details WHERE uemail = ? AND upasword = ?';
-    con.query(sql, [email, password], (err, results) => {
-        if (err) {
-            console.error('MySQL query error:', err);
-            return res.status(500).json({ error: 'Internal server error' });
-        }
-
-        if (results.length === 1) {
-            const userId = results[0].uid;
-            res.json({ userId });
-
-            //res.json({ message: 'Login successful' });
-        } else {
-
-            res.status(401).json({ error: 'Invalid email or password' });
-        }
-    });
-});
-
 app.post('/location', (req, res) => {
     var latitude = req.body.latitude;
     var longitude = req.body.longitude;
     var user = req.body.user;
+    const userId = req.session.userId;
     console.log(req.body);
+    console.log(userId);
 
     var sql = "INSERT INTO coordinates(latitude, longitude,uid) VALUES (?, ?,?)";
     con.query(sql, [latitude, longitude,user], (error, result) => {
@@ -168,6 +174,7 @@ app.post('/location', (req, res) => {
         res.send('Inserted');
     });
 });
+
 
 app.get('/tourSchedules', (req, res) => {
   const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = 1';
