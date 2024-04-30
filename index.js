@@ -177,7 +177,7 @@ app.post('/location', (req, res) => {
 
 
 app.get('/tourSchedules', (req, res) => {
-  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = 1';
+  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = 1';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
 
@@ -191,7 +191,21 @@ app.get('/tourSchedules', (req, res) => {
     }
   });
 });
+app.get('/scheduleHistory', (req, res) => {
+  const sql = 'SELECT TourSchedule.tourId FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ? LIMIT 1';
+  
+  // 'SELECT distance FROM TourSchedule where tourId=1';
 
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching tour schedules:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+      //console.log(result)
+    }
+  });
+});
 app.get('/deleteSchedules', (req, res) => {
       var sql = "DELETE FROM TourSchedule WHERE tourId=1";
       // var id = req.query.uid;
