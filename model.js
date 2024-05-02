@@ -118,13 +118,13 @@ if (interest.length === 1) {
         s=selectedPlaces.forEach(place => {
           console.log(place.location, '-', place.distance.toFixed(2), 'km');
         });
-        const inserttourQuery = `INSERT INTO TourPlans (TourId,UserID, DayNumber) VALUES (?,?,?)`;
+        // const inserttourQuery = `INSERT INTO TourPlans (TourId,UserID, DayNumber) VALUES (?,?,?)`;
             
-                con.query(inserttourQuery, [tourId, userId,days], (insertErr, result) => {
-                    if (insertErr) {
-                        console.error('Error inserting place into TourSchedule:', insertErr);
-                    }
-                });
+        //         con.query(inserttourQuery, [tourId, userId,days], (insertErr, result) => {
+        //             if (insertErr) {
+        //                 console.error('Error inserting place into TourSchedule:', insertErr);
+        //             }
+        //         });
             
         const insertQuery = `INSERT INTO TourSchedule (tourId,uid, distance,loc_id) VALUES (?,?,?,?)`;
             selectedPlaces.forEach(place => {
