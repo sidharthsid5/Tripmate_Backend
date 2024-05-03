@@ -203,8 +203,8 @@ app.post('/location', (req, res) => {
 
 
 app.get('/tourSchedules', (req, res) => {
-  const tourId = req.session.tourId;
-  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ?';
+  const tourId = 3;
+  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
 
@@ -214,14 +214,14 @@ app.get('/tourSchedules', (req, res) => {
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
-      console.log(tourId)
+      // console.log(tourId)
     }
   });
 });
 
 
 app.get('/scheduleHistory', (req, res) => {
-  const tourId = req.session.tourId;
+  const tourId = 3;
   const sql = 'SELECT TourId FROM TourPlans where TourId =?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
