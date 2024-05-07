@@ -220,22 +220,7 @@ app.get('/tourSchedules', (req, res) => {
 });
 
 
-app.get('/scheduleHistory', (req, res) => {
-  const tourId = 3;
-  const sql = 'SELECT TourId FROM TourPlans where TourId =?';
-  
-  // 'SELECT distance FROM TourSchedule where tourId=1';
 
-  con.query(sql, [tourId],(err, result) => {
-    if (err) {
-      console.error('Error fetching tour schedules:', err);
-      res.status(500).send('Internal Server Error');
-    } else {
-      res.json(result);
-      //console.log(result)
-    }
-  });
-});
 app.get('/deleteSchedules', (req, res) => {
       var sql = "DELETE FROM TourSchedule WHERE tourId=1";
       // var id = req.query.uid;
@@ -248,7 +233,22 @@ app.get('/deleteSchedules', (req, res) => {
       });
   });
 
+  app.get('/scheduleHistory', (req, res) => {
+    const tourId = 3;
+    const sql = 'SELECT TourId FROM TourPlans where TourId =?';
+    
+    // 'SELECT distance FROM TourSchedule where tourId=1';
   
+    con.query(sql, [tourId],(err, result) => {
+      if (err) {
+        console.error('Error fetching tour schedules:', err);
+        res.status(500).send('Internal Server Error');
+      } else {
+        res.json(result);
+        //console.log(result)
+      }
+    });
+  });
    
 
 // app.get('/user_details', (req, res) => {
