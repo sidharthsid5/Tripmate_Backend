@@ -204,7 +204,7 @@ app.post('/location', (req, res) => {
 
 app.get('/tourSchedules', (req, res) => {
   const tourId = 3;
-  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ?';
+  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
 
@@ -221,18 +221,28 @@ app.get('/tourSchedules', (req, res) => {
 
 
 
-app.get('/deleteSchedules', (req, res) => {
-      var sql = "DELETE FROM TourSchedule WHERE tourId=1";
+app.get('/editSchedules', (req, res) => {
+      var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
       // var id = req.query.uid;
-      con.query(sql, (error, result) => {
+      con.query(sql,[id], (error, result) => {
           if (error) {
               console.log(error);
               return res.status(500).json({ success: false, message: 'Failed to delete user details' });
           }
-          res.redirect('/deleteSchedules');
+          res.redirect('/editSchedules');
       });
   });
-
+  app.get('/deleteSchedules', (req, res) => {
+    var sql = "DELETE FROM TourSchedule WHERE tourId=1";
+    // var id = req.query.uid;
+    con.query(sql, (error, result) => {
+        if (error) {
+            console.log(error);
+            return res.status(500).json({ success: false, message: 'Failed to delete user details' });
+        }
+        res.redirect('/deleteSchedules');
+    });
+});
   app.get('/scheduleHistory', (req, res) => {
     const tourId = 3;
     const sql = 'SELECT TourId FROM TourPlans where TourId =?';
