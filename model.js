@@ -18,130 +18,6 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return deg * (Math.PI / 180);
   }
 
-//   function fetchAndCalculateDistance(currentLoc, days) {
-//     // Fetch data from the districts table based on current_loc
-//     const districtQuery = `SELECT DistrictName, Latitude, Longitude FROM Districts WHERE DistrictName = ?`;
-//     con.query(districtQuery, [currentLoc], (districtErr, districtRows) => {
-//       if (districtErr) {
-//         console.error('Error fetching data from districts table:', districtErr);
-//         return;
-//       }
-//       if (districtRows.length === 0) {
-//         console.log('No district found for the given current location:', currentLoc);
-//         return;
-//       }
-  
-//       // Extract district coordinates
-//       const district = districtRows[0];
-//       const districtLatitude = district.Latitude;
-//       const districtLongitude = district.Longitude;
-  
-//       // Fetch data from the places table
-//       const placesQuery = `SELECT location, latitude, longitude FROM places`;
-//       con.query(placesQuery, (placesErr, placesRows) => {
-//         if (placesErr) {
-//           console.error('Error fetching data from places table:', placesErr);
-//           return;
-//         }
-  
-//         // Calculate distances for each place
-//         const sortedPlaces = placesRows.map(place => {
-//           const distance = calculateDistance(districtLatitude, districtLongitude, place.latitude, place.longitude);
-//           return { ...place, distance };
-//         }).sort((a, b) => a.distance - b.distance);
-  
-//         // Display sorted places
-//         console.log('Sorted places based on distance from', currentLoc, ':');
-//         sortedPlaces.forEach(place => {
-//           console.log(place.location, '-', place.distance.toFixed(2), 'km');
-//         });
-//       });
-//     });
-//   }
-// Function to fetch data from MySQL and perform calculations
-
-
-// function fetchAndCalculateDistance(tourId, interest,currentLoc, days,userId) {
-//     // Fetch data from the districts table based on current_loc
-//     const districtQuery = `SELECT DistrictName, Latitude, Longitude FROM Districts WHERE DistrictName = ?`;
-//     con.query(districtQuery, [currentLoc], (districtErr, districtRows) => {
-//       if (districtErr) {
-//         console.error('Error fetching data from districts table:', districtErr);
-//         return;
-//       }
-//       if (districtRows.length === 0) {
-//         console.log('No district found for the given current location:', currentLoc);
-//         return;
-//       }
-  
-//       // Extract district coordinates
-//       const district = districtRows[0];
-//       const districtLatitude = district.Latitude;
-//       const districtLongitude = district.Longitude;
-      
-//       // Fetch data from the places table
-//       // const placesQuery = `SELECT location, latitude, longitude FROM places where category ='${interest}'`;
-//        placesQuery = `SELECT location, latitude, longitude,loc_id FROM places WHERE`;
-// if (interest.length === 1) {
-//     // If only one interest is selected, use a simple WHERE clause
-//     placesQuery += ` category = '${interest[0]}'`;
-// } else {
-//     // If multiple interests are selected, use the IN operator
-//     const interestList = interest.map(i => `'${i}'`).join(',');
-//     placesQuery += ` category IN (${interestList})`;
-// }
-
-//       con.query(placesQuery, (placesErr, placesRows) => {
-//         if (placesErr) {
-//           console.error('Error fetching data from places table:', placesErr);
-//           return;
-//         }
-  
-//         // Calculate distances for each place
-//         const sortedPlaces = placesRows.map(place => {
-//           const distance = calculateDistance(districtLatitude, districtLongitude, place.latitude, place.longitude);
-//           return { ...place, distance };
-//         }).sort((a, b) => a.distance - b.distance);
-  
-//         // Select locations based on number of days
-//         let selectedPlaces = [];
-//         const numberOfPlacesPerDay = 3; // Number of places to select per day
-//         for (let i = 0; i < days; i++) {
-//           const startIndex = i * numberOfPlacesPerDay;
-//           const endIndex = startIndex + numberOfPlacesPerDay;
-//           const placesForDay = sortedPlaces.slice(startIndex, endIndex);
-//           selectedPlaces = [...selectedPlaces, ...placesForDay];
-//         }
-        
-//         // Display selected places
-//         console.log(`Selected places for ${days} days based on distance from ${currentLoc}:`);
-//         s=selectedPlaces.forEach(place => {
-//           console.log(place.location, '-', place.distance.toFixed(2), 'km');
-//         });
-//         // const inserttourQuery = `INSERT INTO TourPlans (TourId,UserID, DayNumber) VALUES (?,?,?)`;
-            
-//         //         con.query(inserttourQuery, [tourId, userId,days], (insertErr, result) => {
-//         //             if (insertErr) {
-//         //                 console.error('Error inserting place into TourSchedule:', insertErr);
-//         //             }
-//         //         });
-//         const insertQuery = `
-//         INSERT INTO TourSchedule (tourId, uid, distance, loc_id, time) 
-//         SELECT ?, ?, ?, ?, DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d 07:00:00'), INTERVAL (SELECT COUNT(*) FROM TourSchedule) * 3 HOUR)
-//     `;
-    
-     
-//         // const insertQuery = `INSERT INTO TourSchedule (tourId,uid, distance,loc_id) VALUES (?,?,?,?)`;
-//             selectedPlaces.forEach(place => {
-//                 con.query(insertQuery, [tourId, userId,place.distance,place.loc_id], (insertErr, result) => {
-//                     if (insertErr) {
-//                         console.error('Error inserting place into TourSchedule:', insertErr);
-//                     }
-//                 });
-//             });
-//         });
-//     });
-// }
 
 function fetchAndCalculateDistance(tourId, interest, currentLoc, days, userId) {
   // Define the starting time
@@ -197,6 +73,7 @@ function fetchAndCalculateDistance(tourId, interest, currentLoc, days, userId) {
               const placesForDay = sortedPlaces.slice(startIndex, endIndex);
               selectedPlaces = [...selectedPlaces, ...placesForDay];
           }
+          
 
           // Insert selected places into the TourSchedule table
           const insertQuery = `INSERT INTO TourSchedule (tourId, uid, distance, loc_id, time) VALUES (?, ?, ?, ?, ?)`;

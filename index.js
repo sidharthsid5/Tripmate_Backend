@@ -179,7 +179,6 @@ app.post('/userinterest', (req, res) => {
       res.status(500).json({ success: false, message: 'Internal server error' });
     }
   });
-  
 
 
 app.post('/location', (req, res) => {
@@ -203,7 +202,7 @@ app.post('/location', (req, res) => {
 
 
 app.get('/tourSchedules', (req, res) => {
-  const tourId = 3;
+  const tourId = 8;
   const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
@@ -218,8 +217,6 @@ app.get('/tourSchedules', (req, res) => {
     }
   });
 });
-
-
 
 app.get('/editSchedules', (req, res) => {
       var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
@@ -244,7 +241,7 @@ app.get('/editSchedules', (req, res) => {
     });
 });
   app.get('/scheduleHistory', (req, res) => {
-    const tourId = 3;
+    const tourId = 5;
     const sql = 'SELECT TourId FROM TourPlans where TourId =?';
     
     // 'SELECT distance FROM TourSchedule where tourId=1';
