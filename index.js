@@ -70,6 +70,24 @@ app.post('/signup', (req, res) => {
         res.send('Inserted');
     });
 });
+app.post('/location', (req, res) => {
+  var latitude = req.body.latitude;
+  var longitude = req.body.longitude;
+  var user = req.body.user;
+  const userId = req.session.userId;
+  console.log(req.body);
+  console.log(userId);
+
+  var sql = "INSERT INTO coordinates(latitude, longitude,uid) VALUES (?, ?,?)";
+  con.query(sql, [latitude, longitude,user], (error, result) => {
+      if (error) {
+          console.log(error)
+          return res.status(500).json({ success: false, message: 'Insertion failed' });
+      }
+
+      res.send('Inserted');
+  });
+});
 
 // app.post('/interest', async (req, res) => {
     
@@ -181,24 +199,7 @@ app.post('/userinterest', (req, res) => {
   });
 
 
-app.post('/location', (req, res) => {
-    var latitude = req.body.latitude;
-    var longitude = req.body.longitude;
-    var user = req.body.user;
-    const userId = req.session.userId;
-    console.log(req.body);
-    console.log(userId);
 
-    var sql = "INSERT INTO coordinates(latitude, longitude,uid) VALUES (?, ?,?)";
-    con.query(sql, [latitude, longitude,user], (error, result) => {
-        if (error) {
-            console.log(error)
-            return res.status(500).json({ success: false, message: 'Insertion failed' });
-        }
-
-        res.send('Inserted');
-    });
-});
 
 
 app.get('/tourSchedules', (req, res) => {
@@ -217,7 +218,22 @@ app.get('/tourSchedules', (req, res) => {
     }
   });
 });
+app.get('/scheduleHistory', (req, res) => {
+  const tourId = 5;
+  const sql = 'SELECT TourId FROM TourPlans where TourId =?';
+  
+  // 'SELECT distance FROM TourSchedule where tourId=1';
 
+  con.query(sql, [tourId],(err, result) => {
+    if (err) {
+      console.error('Error fetching tour schedules:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+      //console.log(result)
+    }
+  });
+});
 app.get('/editSchedules', (req, res) => {
       var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
       // var id = req.query.uid;
@@ -240,22 +256,7 @@ app.get('/editSchedules', (req, res) => {
         res.redirect('/deleteSchedules');
     });
 });
-  app.get('/scheduleHistory', (req, res) => {
-    const tourId = 5;
-    const sql = 'SELECT TourId FROM TourPlans where TourId =?';
-    
-    // 'SELECT distance FROM TourSchedule where tourId=1';
   
-    con.query(sql, [tourId],(err, result) => {
-      if (err) {
-        console.error('Error fetching tour schedules:', err);
-        res.status(500).send('Internal Server Error');
-      } else {
-        res.json(result);
-        //console.log(result)
-      }
-    });
-  });
    
 
 // app.get('/user_details', (req, res) => {
