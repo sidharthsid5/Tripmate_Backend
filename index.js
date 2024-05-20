@@ -19,39 +19,65 @@ app.set('view engine', 'ejs');
 app.use(express.json()); 
 
 
+// app.post('/signin', (req, res) => {
+
+//   var email = req.body.email;
+//   var password = req.body.password;
+//   var userId = req.body.userId;
+//   console.log(req.body);
+
+//   // res.status(500).json({ success: false, message: 'Login failed' })
+
+//   if (!email || !password) {
+//       return res.status(400).json({ error: 'Email and password are required' });
+//   }
+
+//   // Check credentials against the database
+//   var sql = 'SELECT uid FROM user_details WHERE uemail = ? AND upasword = ?';
+//   con.query(sql, [email, password], (err, results) => {
+//       if (err) {
+//           console.error('MySQL query error:', err);
+//           return res.status(500).json({ error: 'Internal server error' });
+//       }
+
+//       if (results.length === 1) {
+//            userId = results[0].uid;
+//            req.session.userId = userId;
+//           res.json({ userId });
+//           console.log(userId)
+//           //res.json({ message: 'Login successful' });
+//       } else {
+
+//           res.status(401).json({ error: 'Invalid email or password' });
+//       }
+//   });
+// });
+
+
 app.post('/signin', (req, res) => {
-
-  var email = req.body.email;
-  var password = req.body.password;
-  var userId = req.body.userId;
-  console.log(req.body);
-
-  // res.status(500).json({ success: false, message: 'Login failed' })
+  const { email, password } = req.body;
 
   if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    return res.status(400).json({ error: 'Email and password are required' });
   }
 
-  // Check credentials against the database
-  var sql = 'SELECT uid FROM user_details WHERE uemail = ? AND upasword = ?';
+  const sql = 'SELECT uid FROM user_details WHERE uemail = ? AND upasword = ?';
   con.query(sql, [email, password], (err, results) => {
-      if (err) {
-          console.error('MySQL query error:', err);
-          return res.status(500).json({ error: 'Internal server error' });
-      }
+    if (err) {
+      console.error('MySQL query error:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
 
-      if (results.length === 1) {
-           userId = results[0].uid;
-           req.session.userId = userId;
-          res.json({ userId });
-          console.log(userId)
-          //res.json({ message: 'Login successful' });
-      } else {
+    if (results.length === 1) {
+      const userId = results[0].uid;
+      req.session.userId = userId;
+      return res.json({ userId });
+    }
 
-          res.status(401).json({ error: 'Invalid email or password' });
-      }
+    return res.status(401).json({ error: 'Invalid email or password' });
   });
 });
+
 
 app.post('/signup', (req, res) => {
     var name = req.body.name;
