@@ -229,7 +229,7 @@ app.post('/userinterest', (req, res) => {
 
 
 app.get('/tourSchedules', (req, res) => {
-  const tourId = 8;
+  const tourId = 10;
   const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
@@ -245,7 +245,7 @@ app.get('/tourSchedules', (req, res) => {
   });
 });
 app.get('/scheduleHistory', (req, res) => {
-  const tourId = 5;
+  const tourId = 9;
   const sql = 'SELECT TourId FROM TourPlans where TourId =?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
