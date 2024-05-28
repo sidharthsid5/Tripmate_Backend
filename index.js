@@ -282,7 +282,22 @@ app.get('/editSchedules', (req, res) => {
         res.redirect('/deleteSchedules');
     });
 });
+app.get('/socialMedia', (req, res) => {
+
+  const sql = 'SELECT * FROM final1';
   
+  // 'SELECT distance FROM TourSchedule where tourId=1';
+
+  con.query(sql,(err, result) => {
+    if (err) {
+      console.error('Error fetching tour schedules:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+      //console.log(result)
+    }
+  });
+});
    
 
 // app.get('/user_details', (req, res) => {
