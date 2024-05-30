@@ -115,121 +115,121 @@ app.post('/location', (req, res) => {
   });
 });
 
-// app.post('/interest', async (req, res) => {
-    
-     
-//       var location = req.body.location;
-//       var days = req.body.days;
+// app.post('/userinterest', (req, res) => {
+//     try {
+//       const districtName = req.body.location;
+//       const days = req.body.days;
 //       var interest = req.body.interests;
-//       console.log(req.body);
-//     //   if (!current_loc || !interest) {
-//     //     current_loc = "loc"; 
-//     //     interest = "No ";// Set a default value if current_loc is not provided
-//     //   }
-//     //   var sql = "INSERT INTO interest(current_loc, days, interest) VALUES ( ?, ?, ?)";
-//     //   con.query(sql, [location, days, interest], (error, result) => {
-        
-//     //       if (error) {
-//     //           console.log(error)
-//     //           return res.status(500).json({ success: false, message: ' failed' });
-   
-//     var sql = "INSERT INTO interest (current_loc, days, interest) VALUES ";
-//     var values = interest.map(interests => `('${location}', '${days}', '${interests}')`).join(', ');
+//        const userId = 1;
+//        console.log(userId)
+  
+//  // Define the INSERT query without the tourId column
+//  const insertQuery = `INSERT INTO TourPlans (UserID, DayNumber,LocationID) VALUES (?, ?)`;
 
-//     // Append the multiple value sets to the INSERT query
-//     sql += values;
+//  // Execute the query
+//  con.query(insertQuery, [userId, days,districtName], (insertErr, result) => {
+//      if (insertErr) {
+//          console.error('Error inserting into TourPlans:', insertErr);
+//          res.status(500).json({ success: false, message: 'Internal server error' });
+//      } else {
+//          // If insertion is successful, retrieve the auto-generated tourId
+//          const tourId = result.insertId;
+//          console.log('Inserted tourId:', tourId);
+//          req.session.tourId = tourId;
 
-//     // Execute the INSERT query
-//     con.query(sql, (error, result) => {
-//       if (error) {
-//         console.log(error);
-//         return res.status(500).json({ success: false, message: 'Insertion failed' });
-//       }
-//           res.send('Inserted');
-//       });
+//          // Call function to fetch and calculate distances
+//          fetchAndCalculateDistance(tourId, interest, districtName, days, userId, (err, sortedPlaces) => {
+//              if (err) {
+//                  console.error('Error fetching places:', err);
+//                  res.status(500).json({ success: false, message: 'Internal server error' });
+//              } else {
+//                  res.status(200).json({ success: true, sortedPlaces });
+//              }
+//          });
+//      }
+//  });
+
+//       // Call function to fetch and calculate distances
+//       // fetchAndCalculateDistance(tourId,interest,districtName, days,userId, (err, sortedPlaces) => {
+//       //   if (err) {
+//       //     console.error('Error fetching places:', error);
+//       //     res.status(500).json({ success: false, message: 'Internal server error' });
+//       //   } else {
+//       //     res.status(200).json({ success: true, sortedPlaces });
+//       //   }
+//       // });
+
+//     } catch (error) {
+//       console.error('Error fetching places:', error);
+//       res.status(500).json({ success: false, message: 'Internal server error' });
 //     }
-    
-// ),
+//   });
 
-
-
-
-// Function to fetch data from MySQL and perform calculations
-
-// Route to fetch places based on district name and days
-// app.post('/place', (req, res) => {
-//   try {
-//     const districtName = req.body.location;
-//     const days = req.body.days;
-
-//     // Call function to fetch and calculate distances
-//     fetchAndCalculateDistance(districtName, days);
-
-//     res.status(200).send('Places fetched successfully');
-//   } catch (error) {
-//     console.error('Error fetching places:', error);
-//     res.status(500).json({ success: false, message: 'Internal server error' });
-//   }
-// });
-
-// Modify the code in your /place endpoint
-
-app.post('/userinterest', (req, res) => {
-    try {
+app.post('/createSchedule', (req, res) => {
+  try {
       const districtName = req.body.location;
       const days = req.body.days;
-      var interest = req.body.interests;
-       const userId = req.session.userId;
-       console.log(userId)
-  
- // Define the INSERT query without the tourId column
- const insertQuery = `INSERT INTO TourPlans (UserID, DayNumber) VALUES (?, ?)`;
+      const interest = req.body.interests;
+      const userId = 1; // Assuming userId is fixed or retrieved from the session
 
- // Execute the query
- con.query(insertQuery, [userId, days], (insertErr, result) => {
-     if (insertErr) {
-         console.error('Error inserting into TourPlans:', insertErr);
-         res.status(500).json({ success: false, message: 'Internal server error' });
-     } else {
-         // If insertion is successful, retrieve the auto-generated tourId
-         const tourId = result.insertId;
-         console.log('Inserted tourId:', tourId);
-         req.session.tourId = tourId;
+      // Define the query to fetch DistrictID based on districtName from Districts table
+      const selectQuery = `SELECT DistrictID FROM Districts WHERE DistrictName = ?`;
 
-         // Call function to fetch and calculate distances
-         fetchAndCalculateDistance(tourId, interest, districtName, days, userId, (err, sortedPlaces) => {
-             if (err) {
-                 console.error('Error fetching places:', err);
-                 res.status(500).json({ success: false, message: 'Internal server error' });
-             } else {
-                 res.status(200).json({ success: true, sortedPlaces });
-             }
-         });
-     }
- });
+      // Execute the query to fetch DistrictID
+      con.query(selectQuery, [districtName], (selectErr, selectResult) => {
+          if (selectErr) {
+              console.error('Error fetching DistrictID from Districts:', selectErr);
+              res.status(500).json({ success: false, message: 'Internal server error' });
+          } else {
+              if (selectResult.length === 0) {
+                  // Handle case where districtName doesn't exist in Districts table
+                  console.error(`District '${districtName}' not found in Districts table.`);
+                  res.status(404).json({ success: false, message: 'District not found' });
+              } else {
+                  const districtId = selectResult[0].DistrictID;
+                  console.log(`District '${districtName}' found with ID '${districtId}' in Districts table.`);
 
-      // Call function to fetch and calculate distances
-      // fetchAndCalculateDistance(tourId,interest,districtName, days,userId, (err, sortedPlaces) => {
-      //   if (err) {
-      //     console.error('Error fetching places:', error);
-      //     res.status(500).json({ success: false, message: 'Internal server error' });
-      //   } else {
-      //     res.status(200).json({ success: true, sortedPlaces });
-      //   }
-      // });
+                  // Define the INSERT query into TourPlans
+                  const insertQuery = `INSERT INTO TourPlans (UserID, DayNumber, LocationID) VALUES (?, ?, ?)`;
 
-    } catch (error) {
-      console.error('Error fetching places:', error);
+                  // Execute the INSERT query
+                  con.query(insertQuery, [userId, days, districtId], (insertErr, result) => {
+                      if (insertErr) {
+                          console.error('Error inserting into TourPlans:', insertErr);
+                          res.status(500).json({ success: false, message: 'Internal server error' });
+                      } else {
+                          // If insertion is successful, retrieve the auto-generated tourId
+                          const tourId = result.insertId;
+                          console.log('Inserted tourId:', tourId);
+                          req.session.tourId = tourId;
+
+                          // Call function to fetch and calculate distances
+                          fetchAndCalculateDistance(tourId, interest, districtName, days, userId, (err, sortedPlaces) => {
+                              if (err) {
+                                  console.error('Error fetching places:', err);
+                                  res.status(500).json({ success: false, message: 'Internal server error' });
+                              } else {
+                                  res.status(200).json({ success: true, sortedPlaces });
+                              }
+                          });
+                      }
+                  });
+              }
+          }
+      });
+
+  } catch (error) {
+      console.error('Error processing request:', error);
       res.status(500).json({ success: false, message: 'Internal server error' });
-    }
-  });
+  }
+});
 
 
 
 
 
 app.get('/tourSchedules', (req, res) => {
-  const tourId = 10;
+  const tourId = 1;
   const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
@@ -245,12 +245,13 @@ app.get('/tourSchedules', (req, res) => {
   });
 });
 app.get('/scheduleHistory', (req, res) => {
-  const tourId = 9;
-  const sql = 'SELECT TourId FROM TourPlans where TourId =?';
+ 
+  const userId= 1;
+  const sql = 'SELECT * FROM TourPlans where UserID=?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
 
-  con.query(sql, [tourId],(err, result) => {
+  con.query(sql, [userId],(err, result) => {
     if (err) {
       console.error('Error fetching tour schedules:', err);
       res.status(500).send('Internal Server Error');
