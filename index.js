@@ -5,6 +5,7 @@ const cors = require('cors');
 const session = require('express-session');
 var bodyParser = require('body-parser');
 const { calculateDistance, deg2rad, fetchAndCalculateDistance } = require('./model.js');
+const router = express.Router();
 
 // Enable CORS for all routes
 app.use(session({
@@ -302,7 +303,7 @@ app.get('/socialMedia', (req, res) => {
 
 app.get('/placedetails', (req, res) => {
 
-  const sql = 'SELECT * FROM places ORDER BY loc_id DESC';
+  const sql = 'SELECT * FROM places ORDER BY priority ASC';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
 
@@ -317,6 +318,50 @@ app.get('/placedetails', (req, res) => {
   });
 });
    
+app.get('/place/:placeId', (req, res) => {
+  const placeId = parseInt(req.params.placeId); // Parse placeId to integer
+
+  // Validate placeId
+  if (isNaN(placeId) || placeId <= 0) {
+    return res.status(400).json({ message: 'Invalid placeId, must be a positive integer' });
+  }
+
+  try {
+    // Fetch place details based on loc_id
+    const sql = 'SELECT loc_id, location, image FROM places WHERE loc_id = ?';
+    con.query(sql, [placeId], (err, result) => {
+      if (err) {
+        console.error('Error fetching place details:', err);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (result.length === 0) {
+        return res.status(404).json({ message: 'Place not found' });
+      }
+
+      // Extract place details from the result
+      const place = result[0]; // Assuming there's only one place with the given placeId
+
+      // Prepare response
+      const response = {
+        id: place.loc_id,
+        location: place.location,
+        imageUrl: place.image,
+        // Add more fields as needed
+      };
+
+      // Send the response
+      res.json(response);
+    });
+
+  } catch (err) {
+    console.error('Error fetching place details', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
 
 // app.get('/user_details', (req, res) => {
 //     var sql = "SELECT * FROM user_details";
