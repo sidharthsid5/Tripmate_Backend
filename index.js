@@ -231,7 +231,7 @@ app.post('/createSchedule', (req, res) => {
 
 app.get('/tourSchedules', (req, res) => {
   const tourId = 1;
-  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ?';
+  const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ? ORDER BY TourSchedule.distance ASC';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
 
@@ -245,6 +245,7 @@ app.get('/tourSchedules', (req, res) => {
     }
   });
 });
+
 app.get('/scheduleHistory', (req, res) => {
  
   const userId= 1;
@@ -262,17 +263,7 @@ app.get('/scheduleHistory', (req, res) => {
     }
   });
 });
-app.get('/editSchedules', (req, res) => {
-      var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
-      // var id = req.query.uid;
-      con.query(sql,[id], (error, result) => {
-          if (error) {
-              console.log(error);
-              return res.status(500).json({ success: false, message: 'Failed to delete user details' });
-          }
-          res.redirect('/editSchedules');
-      });
-  });
+
   app.get('/deleteSchedules', (req, res) => {
     var sql = "DELETE FROM TourSchedule WHERE tourId=1";
     // var id = req.query.uid;
@@ -317,7 +308,31 @@ app.get('/placedetails', (req, res) => {
     }
   });
 });
-   
+app.get('/editSchedules/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
+  // var id = req.query.uid;
+  con.query(sql,[id], (error, result) => {
+      if (error) {
+          console.log(error);
+          return res.status(500).json({ success: false, message: 'Failed to delete user details' });
+      }
+      res.redirect('/editSchedules');
+  });
+});
+app.get('/tourschedules/:id', (req, res) => {
+  const scheduleId = req.params.id;
+  con.query('DELETE FROM TourSchedule WHERE schedule_id=?', [scheduleId], (error, results) => {
+    if (error) {
+      return res.status(500).json({ error: 'Database query failed' });
+    }
+    if (results.length > 0) {
+      return res.json(results[0]);
+    } else {
+      return res.status(404).json({ error: 'Schedule not found' });
+    }
+  });
+});
 app.get('/place/:placeId', (req, res) => {
   const placeId = parseInt(req.params.placeId); // Parse placeId to integer
 
