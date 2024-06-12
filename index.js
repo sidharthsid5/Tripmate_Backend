@@ -375,6 +375,20 @@ app.get('/place/:placeId', (req, res) => {
   }
 });
 
+app.get('/user/:id', (req, res) => {
+  const userId = req.params.id;
+  const query = 'SELECT *FROM user_details WHERE uid = ?';
+  con.query(query, [userId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).json({ message: 'User not found' });
+    }
+  });
+});
 
 
 
