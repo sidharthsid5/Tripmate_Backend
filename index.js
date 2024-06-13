@@ -308,6 +308,25 @@ app.get('/placedetails', (req, res) => {
     }
   });
 });
+
+
+app.get('/touristdetails', (req, res) => {
+
+  const sql = 'SELECT * FROM tourism_data ';
+  
+  // 'SELECT distance FROM TourSchedule where tourId=1';
+
+  con.query(sql,(err, result) => {
+    if (err) {
+      console.error('Error fetching tour schedules:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+      // console.log(result)
+    }
+  });
+});
+
 app.get('/editSchedules/:id', (req, res) => {
   const id = parseInt(req.params.id);
   var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
