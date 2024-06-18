@@ -304,7 +304,7 @@ app.get('/placedetails', (req, res) => {
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
-      // console.log(result)
+       console.log(result)
     }
   });
 });
@@ -326,19 +326,6 @@ app.get('/touristdetails', (req, res) => {
     }
   });
 });
-
-app.get('/editSchedules/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
-  // var id = req.query.uid;
-  con.query(sql,[id], (error, result) => {
-      if (error) {
-          console.log(error);
-          return res.status(500).json({ success: false, message: 'Failed to delete user details' });
-      }
-      res.redirect('/editSchedules');
-  });
-});
 app.get('/tourschedules/:id', (req, res) => {
   const scheduleId = req.params.id;
   con.query('DELETE FROM TourSchedule WHERE schedule_id=?', [scheduleId], (error, results) => {
@@ -352,6 +339,19 @@ app.get('/tourschedules/:id', (req, res) => {
     }
   });
 });
+app.get('/editSchedules/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
+  // var id = req.query.uid;
+  con.query(sql,[id], (error, result) => {
+      if (error) {
+          console.log(error);
+          return res.status(500).json({ success: false, message: 'Failed to delete user details' });
+      }
+      res.redirect('/editSchedules');
+  });
+});
+
 app.get('/place/:placeId', (req, res) => {
   const placeId = parseInt(req.params.placeId); // Parse placeId to integer
 
