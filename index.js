@@ -304,7 +304,7 @@ app.get('/placedetails', (req, res) => {
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
-       console.log(result)
+      //  console.log(result)
     }
   });
 });
