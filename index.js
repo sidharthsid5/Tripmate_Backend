@@ -85,10 +85,14 @@ app.post('/signup', (req, res) => {
     var email = req.body.email;
     var lastName = req.body.lastName;
     var password = req.body.password;
+    var sex = req.body.sex;
+    var age = req.body.age;
+    var country = req.body.country;
+    var currentYear = req.body.currentYear;
     console.log(req.body);
 
-    var sql = "INSERT INTO user_details(uname, ulastName, uemail, upasword) VALUES (?, ?, ?, ?)";
-    con.query(sql, [name, lastName, email, password], (error, result) => {
+    var sql = "INSERT INTO user_details(uname, ulastName, uemail, upasword,uage,country,usex,visitedyear) VALUES (?, ?, ?, ?,?, ?, ?, ?)";
+    con.query(sql, [name, lastName, email, password,age,country,sex,currentYear], (error, result) => {
         if (error) {
             console.log(error)
             return res.status(500).json({ success: false, message: 'Registration failed' });
@@ -230,7 +234,7 @@ app.post('/createSchedule', (req, res) => {
 
 
 app.get('/tourSchedules', (req, res) => {
-  const tourId = 1;
+  const tourId = 2;
   const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ? ORDER BY TourSchedule.distance ASC';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
