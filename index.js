@@ -233,8 +233,8 @@ app.post('/createSchedule', (req, res) => {
 
 
 
-app.get('/tourSchedules', (req, res) => {
-  const tourId = 2;
+app.get('/tourSchedules/:tourId', (req, res) => {
+  const tourId = req.params.tourId;
   const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ? ORDER BY TourSchedule.distance ASC';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
