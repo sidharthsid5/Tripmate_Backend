@@ -170,12 +170,12 @@ app.post('/location', (req, res) => {
 //     }
 //   });
 
-app.post('/createSchedule', (req, res) => {
+app.post('/createSchedule/:userId', (req, res) => {
   try {
       const districtName = req.body.location;
       const days = req.body.days;
       const interest = req.body.interests;
-      const userId = 1; // Assuming userId is fixed or retrieved from the session
+      const userId = req.params.userId;; // Assuming userId is fixed or retrieved from the session
 
       // Define the query to fetch DistrictID based on districtName from Districts table
       const selectQuery = `SELECT DistrictID FROM Districts WHERE DistrictName = ?`;
@@ -250,9 +250,9 @@ app.get('/tourSchedules/:tourId', (req, res) => {
   });
 });
 
-app.get('/scheduleHistory', (req, res) => {
+app.get('/scheduleHistory/:userId', (req, res) => {
  
-  const userId= 1;
+  const userId= req.params.userId;
   const sql = 'SELECT * FROM TourPlans where UserID=?';
   
   // 'SELECT distance FROM TourSchedule where tourId=1';
