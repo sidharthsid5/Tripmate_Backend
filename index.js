@@ -120,63 +120,14 @@ app.post('/location', (req, res) => {
   });
 });
 
-// app.post('/userinterest', (req, res) => {
-//     try {
-//       const districtName = req.body.location;
-//       const days = req.body.days;
-//       var interest = req.body.interests;
-//        const userId = 1;
-//        console.log(userId)
-  
-//  // Define the INSERT query without the tourId column
-//  const insertQuery = `INSERT INTO TourPlans (UserID, DayNumber,LocationID) VALUES (?, ?)`;
-
-//  // Execute the query
-//  con.query(insertQuery, [userId, days,districtName], (insertErr, result) => {
-//      if (insertErr) {
-//          console.error('Error inserting into TourPlans:', insertErr);
-//          res.status(500).json({ success: false, message: 'Internal server error' });
-//      } else {
-//          // If insertion is successful, retrieve the auto-generated tourId
-//          const tourId = result.insertId;
-//          console.log('Inserted tourId:', tourId);
-//          req.session.tourId = tourId;
-
-//          // Call function to fetch and calculate distances
-//          fetchAndCalculateDistance(tourId, interest, districtName, days, userId, (err, sortedPlaces) => {
-//              if (err) {
-//                  console.error('Error fetching places:', err);
-//                  res.status(500).json({ success: false, message: 'Internal server error' });
-//              } else {
-//                  res.status(200).json({ success: true, sortedPlaces });
-//              }
-//          });
-//      }
-//  });
-
-//       // Call function to fetch and calculate distances
-//       // fetchAndCalculateDistance(tourId,interest,districtName, days,userId, (err, sortedPlaces) => {
-//       //   if (err) {
-//       //     console.error('Error fetching places:', error);
-//       //     res.status(500).json({ success: false, message: 'Internal server error' });
-//       //   } else {
-//       //     res.status(200).json({ success: true, sortedPlaces });
-//       //   }
-//       // });
-
-//     } catch (error) {
-//       console.error('Error fetching places:', error);
-//       res.status(500).json({ success: false, message: 'Internal server error' });
-//     }
-//   });
 
 app.post('/createSchedule/:userId', (req, res) => {
   try {
       const districtName = req.body.location;
       const days = req.body.days;
       const interest = req.body.interests;
-      const userId = req.params.userId;; // Assuming userId is fixed or retrieved from the session
-
+      const userId = req.params.userId; // Assuming userId is fixed or retrieved from the session
+      
       // Define the query to fetch DistrictID based on districtName from Districts table
       const selectQuery = `SELECT DistrictID FROM Districts WHERE DistrictName = ?`;
 
@@ -249,24 +200,26 @@ app.get('/tourSchedules/:tourId', (req, res) => {
     }
   });
 });
-
 app.get('/scheduleHistory/:userId', (req, res) => {
- 
-  const userId= req.params.userId;
-  const sql = 'SELECT * FROM TourPlans where UserID=?';
-  
-  // 'SELECT distance FROM TourSchedule where tourId=1';
+  const userId = req.params.userId;
+  const sql = `
+    SELECT tp.TourID, tp.LocationID, tp.Date, tp.UserID, tp.DayNumber, p.DistrictName
+    FROM TourPlans tp
+    JOIN Districts p ON tp.LocationID = p.DistrictID
+    WHERE tp.UserID = ? ORDER BY tp.TourID DESC;
+  `;
 
-  con.query(sql, [userId],(err, result) => {
+  con.query(sql, [userId], (err, result) => {
     if (err) {
       console.error('Error fetching tour schedules:', err);
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
-      //console.log(result)
+      console.log(result);
     }
   });
 });
+
 
   app.get('/deleteSchedules', (req, res) => {
     var sql = "DELETE FROM TourSchedule WHERE tourId=1";
@@ -414,56 +367,6 @@ app.get('/user/:id', (req, res) => {
 });
 
 
-
-// app.get('/user_details', (req, res) => {
-//     var sql = "SELECT * FROM user_details";
-//     con.query(sql, (error, result) => {
-//         if (error) {
-//             console.log(error);
-//             return res.status(500).json({ success: false, message: 'Failed to fetch user details' });
-//         }
-//         res.render(__dirname + "/user_details", { user_details: result });
-//     });
-// });
-
-// app.get('/delete-user_details', (req, res) => {
-//     var sql = "DELETE FROM user_details WHERE uid=?";
-//     var id = req.query.uid;
-//     con.query(sql, [id], (error, result) => {
-//         if (error) {
-//             console.log(error);
-//             return res.status(500).json({ success: false, message: 'Failed to delete user details' });
-//         }
-//         res.redirect('/user_details');
-//     });
-// });
-
-// app.get('/update-user_details', (req, res) => {
-//     var sql = "SELECT * FROM user_details WHERE uid=?";
-//     var id = req.query.uid;
-//     con.query(sql, [id], (error, result) => {
-//         if (error) {
-//             console.log(error);
-//             return res.status(500).json({ success: false, message: 'Failed to fetch user details for update' });
-//         }
-//         res.render(__dirname + "/update_user", { user_details: result });
-//     });
-// });
-
-// app.post('/update-user_details', (req, res) => {
-//     var name = req.body.name;
-//     var email = req.body.email;
-//     var id = req.body.id;
-
-//     var sql = "UPDATE user_details SET uname=?, uemail=? WHERE uid=?";
-//     con.query(sql, [name, email, id], (error, result) => {
-//         if (error) {
-//             console.log(error);
-//             return res.status(500).json({ success: false, message: 'Failed to update user details' });
-//         }
-//         res.redirect('/user_details');
-//     });
-// });
 
 app.listen(4000, () => {
     console.log('Server is running on port 4000');
