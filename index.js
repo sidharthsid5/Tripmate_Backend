@@ -20,41 +20,6 @@ app.set('view engine', 'ejs');
 app.use(express.json()); 
 
 
-// app.post('/signin', (req, res) => {
-
-//   var email = req.body.email;
-//   var password = req.body.password;
-//   var userId = req.body.userId;
-//   console.log(req.body);
-
-//   // res.status(500).json({ success: false, message: 'Login failed' })
-
-//   if (!email || !password) {
-//       return res.status(400).json({ error: 'Email and password are required' });
-//   }
-
-//   // Check credentials against the database
-//   var sql = 'SELECT uid FROM user_details WHERE uemail = ? AND upasword = ?';
-//   con.query(sql, [email, password], (err, results) => {
-//       if (err) {
-//           console.error('MySQL query error:', err);
-//           return res.status(500).json({ error: 'Internal server error' });
-//       }
-
-//       if (results.length === 1) {
-//            userId = results[0].uid;
-//            req.session.userId = userId;
-//           res.json({ userId });
-//           console.log(userId)
-//           //res.json({ message: 'Login successful' });
-//       } else {
-
-//           res.status(401).json({ error: 'Invalid email or password' });
-//       }
-//   });
-// });
-
-
 app.post('/signin', (req, res) => {
   const { email, password } = req.body;
 
@@ -101,6 +66,10 @@ app.post('/signup', (req, res) => {
         res.send('Inserted');
     });
 });
+
+
+
+
 app.post('/location', (req, res) => {
   var latitude = req.body.latitude;
   var longitude = req.body.longitude;
@@ -126,40 +95,39 @@ app.post('/createSchedule/:userId', (req, res) => {
       const districtName = req.body.location;
       const days = req.body.days;
       const interest = req.body.interests;
-      const userId = req.params.userId; // Assuming userId is fixed or retrieved from the session
+      const userId = req.params.userId; 
       
-      // Define the query to fetch DistrictID based on districtName from Districts table
       const selectQuery = `SELECT DistrictID FROM Districts WHERE DistrictName = ?`;
 
-      // Execute the query to fetch DistrictID
+     
       con.query(selectQuery, [districtName], (selectErr, selectResult) => {
           if (selectErr) {
               console.error('Error fetching DistrictID from Districts:', selectErr);
               res.status(500).json({ success: false, message: 'Internal server error' });
           } else {
               if (selectResult.length === 0) {
-                  // Handle case where districtName doesn't exist in Districts table
+                  
                   console.error(`District '${districtName}' not found in Districts table.`);
                   res.status(404).json({ success: false, message: 'District not found' });
               } else {
                   const districtId = selectResult[0].DistrictID;
                   console.log(`District '${districtName}' found with ID '${districtId}' in Districts table.`);
 
-                  // Define the INSERT query into TourPlans
+                 
                   const insertQuery = `INSERT INTO TourPlans (UserID, DayNumber, LocationID) VALUES (?, ?, ?)`;
 
-                  // Execute the INSERT query
+
                   con.query(insertQuery, [userId, days, districtId], (insertErr, result) => {
                       if (insertErr) {
                           console.error('Error inserting into TourPlans:', insertErr);
                           res.status(500).json({ success: false, message: 'Internal server error' });
                       } else {
-                          // If insertion is successful, retrieve the auto-generated tourId
+                        
                           const tourId = result.insertId;
                           console.log('Inserted tourId:', tourId);
                           req.session.tourId = tourId;
 
-                          // Call function to fetch and calculate distances
+                        
                           fetchAndCalculateDistance(tourId, interest, districtName, days, userId, (err, sortedPlaces) => {
                               if (err) {
                                   console.error('Error fetching places:', err);
@@ -181,9 +149,6 @@ app.post('/createSchedule/:userId', (req, res) => {
 });
 
 
-
-
-
 app.get('/tourSchedules/:tourId', (req, res) => {
   const tourId = req.params.tourId;
   const sql = 'SELECT places.loc_id, places.location, places.time,places.category,TourSchedule.distance,TourSchedule.tourId,TourSchedule.Time,TourSchedule.schedule_id FROM TourSchedule INNER JOIN places ON TourSchedule.loc_id = places.loc_id WHERE TourSchedule.tourId = ? ORDER BY TourSchedule.distance ASC';
@@ -200,6 +165,8 @@ app.get('/tourSchedules/:tourId', (req, res) => {
     }
   });
 });
+
+
 app.get('/scheduleHistory/:userId', (req, res) => {
   const userId = req.params.userId;
   const sql = `
@@ -215,10 +182,33 @@ app.get('/scheduleHistory/:userId', (req, res) => {
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
-      console.log(result);
+      // console.log(result);
     }
   });
 });
+
+//admin all history
+
+app.get('/scheduleHistoryss', (req, res) => {
+  const userId = req.params.userId;
+  const sql = `
+    SELECT tp.TourID, tp.LocationID, tp.Date, tp.UserID, tp.DayNumber, p.DistrictName
+    FROM TourPlans tp
+    JOIN Districts p ON tp.LocationID = p.DistrictID
+   ORDER BY tp.TourID DESC;
+  `;
+
+  con.query(sql, [userId], (err, result) => {
+    if (err) {
+      console.error('Error fetching tour schedules:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+      // console.log(result);
+    }
+  });
+});
+
 
 
   app.get('/deleteSchedules', (req, res) => {
@@ -232,19 +222,18 @@ app.get('/scheduleHistory/:userId', (req, res) => {
         res.redirect('/deleteSchedules');
     });
 });
+
 app.get('/socialMedia', (req, res) => {
 
   const sql = 'SELECT * FROM final1';
   
-  // 'SELECT distance FROM TourSchedule where tourId=1';
-
   con.query(sql,(err, result) => {
     if (err) {
       console.error('Error fetching tour schedules:', err);
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
-      //console.log(result)
+     
     }
   });
 });
@@ -253,7 +242,7 @@ app.get('/placedetails', (req, res) => {
 
   const sql = 'SELECT * FROM places ORDER BY priority ASC';
   
-  // 'SELECT distance FROM TourSchedule where tourId=1';
+  
 
   con.query(sql,(err, result) => {
     if (err) {
@@ -279,10 +268,12 @@ app.get('/touristdetails', (req, res) => {
       res.status(500).send('Internal Server Error');
     } else {
       res.json(result);
-      // console.log(result)
+      //  console.log(result)
     }
   });
 });
+
+
 app.get('/tourschedules/:id', (req, res) => {
   const scheduleId = req.params.id;
   con.query('DELETE FROM TourSchedule WHERE schedule_id=?', [scheduleId], (error, results) => {
@@ -296,16 +287,18 @@ app.get('/tourschedules/:id', (req, res) => {
     }
   });
 });
-app.get('/editSchedules/:id', (req, res) => {
-  const id = parseInt(req.params.id);
+
+
+app.delete('/editSchedules/:scheduleId', (req, res) => {
+  const scheduleId = parseInt(req.params.scheduleId);
   var sql = "DELETE FROM TourSchedule WHERE schedule_id=?";
-  // var id = req.query.uid;
-  con.query(sql,[id], (error, result) => {
-      if (error) {
-          console.log(error);
-          return res.status(500).json({ success: false, message: 'Failed to delete user details' });
-      }
-      res.redirect('/editSchedules');
+ 
+  con.query(sql, [scheduleId], (error, result) => {
+    if (error) {
+      console.log(error);
+      return res.status(500).json({ success: false, message: 'Failed to delete schedule' });
+    }
+    res.status(200).json({ success: true, message: 'Schedule deleted successfully' });
   });
 });
 
@@ -366,8 +359,238 @@ app.get('/user/:id', (req, res) => {
   });
 });
 
+app.get('/UserList', (req, res) => {
+
+  const sql = 'SELECT * FROM user_details WHERE uid <> 1 ORDER BY uname';
+  
+  con.query(sql,(err, result) => {
+    if (err) {
+      console.error('Error fetching tour schedules:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+     
+    }
+  });
+});
+
+
+
+
+// Delete user by userId
+app.delete('/deleteUser/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const sql = 'DELETE FROM user_details WHERE uid = ?';
+
+  con.query(sql, [userId], (err, result) => {
+    if (err) {
+      console.error('Error deleting user:', err);
+      return res.status(500).json({ message: 'Failed to delete user' });
+    }
+    res.status(200).json({ message: 'User deleted successfully' });
+  });
+});
+
+// Update user by userId
+app.put('/updateUser/:userId', (req, res) => {
+  const userId = req.params.userId;
+  const { firstName, lastName, email } = req.body;
+  const sql = 'UPDATE user_details SET uname = ?, ulastName = ?, uemail = ? WHERE uid = ?';
+
+  con.query(sql, [firstName, lastName, email, userId], (err, result) => {
+    if (err) {
+      console.error('Error updating user:', err);
+      return res.status(500).json({ message: 'Failed to update user' });
+    }
+    res.status(200).json({ message: 'User updated successfully' });
+  });
+});
+
+
+
+
+
+app.post('/addevent', (req, res) => {
+  const { name, eventPlace, description, startDate, endDate } = req.body;
+
+  if (!name || !eventPlace || !description || !startDate || !endDate) {
+    return res.status(400).json({
+      success: false,
+      message: 'Name, event place, description, start date, and end date are required.',
+    });
+  }
+
+
+  const isValidDate = (date) => !isNaN(Date.parse(date));
+  if (!isValidDate(startDate) || !isValidDate(endDate)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid date format for start date or end date.',
+    });
+  }
+
+  console.log(req.body);
+
+  const sql = 'INSERT INTO events (event_name, event_place, description, start_date, end_date) VALUES (?, ?, ?, ?, ?)';
+  con.query(sql, [name, eventPlace, description, startDate, endDate], (error, result) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({ success: false, message: 'Failed to add event.' });
+    }
+
+    res.status(200).json({ success: true, message: 'Event added successfully.' });
+  });
+});
+
+// Get All Events
+app.get('/events', (req, res) => {
+  const sql = 'SELECT * FROM events ORDER BY start_date DESC';
+  con.query(sql, (error, results) => {
+    if (error) {
+      console.error(error);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to retrieve events.',
+      });
+    }
+
+    res.status(200).json({ success: true, data: results });
+  });
+});
+
+// Delete Event by ID
+app.delete('/events/:eventId', (req, res) => {
+  const eventId = req.params.eventId;
+
+  if (isNaN(eventId)) {
+    return res.status(400).json({ error: 'Invalid event ID' });
+  }
+
+  const sql = 'DELETE FROM events WHERE event_id = ?';
+  con.query(sql, [eventId], (err, result) => {
+    if (err) {
+      console.error('Error deleting event:', err);
+      return res.status(500).json({ error: 'Failed to delete event' });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    res.status(200).json({ message: 'Event deleted successfully' });
+  });
+});
+
+
+app.get('/coordinates', (req, res) => {
+  const sql = 'SELECT latitude, longitude FROM graph_coordinates';
+  
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching coordinates:', err);
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'No coordinates found' });
+    }
+
+    // Return the coordinates, they should already be floats (numbers)
+    res.json({ data: result });
+  });
+});
+
+
+
+//abhijith table
+app.get('/Placesss', (req, res) => {
+
+  const sql = 'SELECT * FROM places ';
+  
+  con.query(sql,(err, result) => {
+    if (err) {
+      console.error('Error fetching Place:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+     
+    }
+  });
+});
+
+
+
+// //new table api calls
+
+
+app.get('/coordinates1', (req, res) => {
+  const sql = 'SELECT * FROM coordinates';
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching coordinates:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+app.get('/graphCoordinates1', (req, res) => {
+  const sql = 'SELECT * FROM graph_coordinates';
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching graph coordinates:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+
+app.get('/placesTable', (req, res) => {
+  const sql = 'SELECT district, location, category, time, latitude, longitude, image, description FROM places';
+
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching places:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+
+
+app.get('/tourismData1', (req, res) => {
+  const sql = 'SELECT * FROM tourism_data';
+
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching tourism data:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+    }
+  });
+});
+
+// Clustering and similarity
+
+app.get('/coordinates2', (req, res) => {
+  const sql = 'SELECT * FROM coordinates';
+  con.query(sql, (err, result) => {
+    if (err) {
+      console.error('Error fetching coordinates:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      res.json(result);
+    }
+  });
+});
 
 
 app.listen(4000, () => {
-    console.log('Server is running on port 4000');
+  console.log('Server is running on port 4000');
 });
